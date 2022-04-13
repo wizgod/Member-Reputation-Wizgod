@@ -18,9 +18,9 @@ class dislike_post implements dislike_interface {
 	/**
 	 * @todo
 	 */
-	public function dislike() {
+	public function dislike( $post_id ) {
 
-		return false;
+		var_dump( 'dislike_post' ); die();
 
 	}
 

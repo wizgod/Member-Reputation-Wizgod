@@ -18,9 +18,9 @@ class like_post implements like_interface {
 	/**
 	 * @todo
 	 */
-	public function like() {
+	public function like( $post_id ) {
 
-		return false;
+		var_dump( 'like_post' ); die();
 
 	}
 

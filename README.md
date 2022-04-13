@@ -1,4 +1,4 @@
-# Likes
+# Member Reputation
 
 Lets user's like and dislike posts that contribute towards reputation.
 
