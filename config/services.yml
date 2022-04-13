@@ -1,0 +1,22 @@
+imports:
+    - { resource: tables.yml }
+
+services:
+    danieltj.memberreputation.listener:
+        class: danieltj\memberreputation\event\listener
+        arguments:
+            - '@controller.helper'
+            - '@language'
+            - '@request'
+            - '@template'
+            - '@user'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+        tags:
+            - { name: event.listener }
+
+    danieltj.memberreputation.like_post:
+        class: danieltj\memberreputation\controller\like_post
+
+    danieltj.memberreputation.dislike_post:
+        class: danieltj\memberreputation\controller\dislike_post

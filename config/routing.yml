@@ -1,0 +1,11 @@
+danieltj_memberreputation_like_controller:
+    path: /reputation/{post_id}/like
+    default: { _controller: danieltj.memberreputation.like_post:like }
+    requirements:
+        post_id: \d+
+
+danieltj_memberreputation_dislike_controller:
+    path: /reputation/{post_id}/dislike
+    default: { _controller: danieltj.memberreputation.dislike_post:dislike }
+    requirements:
+        post_id: \d+
