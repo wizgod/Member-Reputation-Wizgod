@@ -151,6 +151,8 @@ class like_post implements like_interface {
 
 			$sql = 'INSERT INTO ' . $this->table_prefix . ' ' . $this->db->sql_build_array( 'INSERT', $vars );
 
+			$this->db->sql_query( $sql );
+
 			$this->db->sql_transaction( 'commit' );
 
 		}
