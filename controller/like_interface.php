@@ -10,9 +10,6 @@ namespace danieltj\memberreputation\controller;
 
 interface like_interface {
 
-	/**
-	 * @todo
-	 */
 	public function like( $post_id );
 
 }

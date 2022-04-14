@@ -73,7 +73,7 @@ class like_post implements like_interface {
 	}
 
 	/**
-	 * @todo
+	 * Handle the like endpoint.
 	 */
 	public function like( $post_id ) {
 

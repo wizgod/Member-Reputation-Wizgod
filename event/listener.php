@@ -140,7 +140,7 @@ class listener implements EventSubscriberInterface {
 	}
 
 	/**
-	 * @todo
+	 * Add template vars to view topic.
 	 */
 	public function topic_modify_post_row( $event ) {
 
@@ -230,7 +230,7 @@ class listener implements EventSubscriberInterface {
 	}
 
 	/**
-	 * @todo
+	 * Add template vars to view PM.
 	 */
 	public function ucp_view_message( $event ) {
 
@@ -270,7 +270,7 @@ class listener implements EventSubscriberInterface {
 	}
 
 	/**
-	 * @todo
+	 * Add template vars to profile.
 	 */
 	public function member_view_profile( $event ) {
 

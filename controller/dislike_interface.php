@@ -10,9 +10,6 @@ namespace danieltj\memberreputation\controller;
 
 interface dislike_interface {
 
-	/**
-	 * @todo
-	 */
 	public function dislike( $post_id );
 
 }

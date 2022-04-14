@@ -73,7 +73,7 @@ class dislike_post implements dislike_interface {
 	}
 
 	/**
-	 * @todo
+	 * Handle the dislike endpoint.
 	 */
 	public function dislike( $post_id ) {
 
