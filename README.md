@@ -6,6 +6,7 @@ Lets user's like and dislike posts that contribute towards reputation.
 
 - Add the extension files into a folder located in `ext/danieltj/memberreputation`.
 - Navigate to the Admin Control Panel and enable the extension.
+- Update user permissions to allow liking & disliking.
 
 ## Licence
 
