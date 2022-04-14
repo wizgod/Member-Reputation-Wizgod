@@ -95,7 +95,10 @@ class listener implements EventSubscriberInterface {
 		return [
 			'core.user_setup'					=> 'add_languages',
 			'core.permissions'					=> 'add_permissions',
-			'core.viewtopic_modify_post_row'	=> 'topic_modify_post_row'
+			'core.viewtopic_modify_post_row'	=> 'topic_modify_post_row',
+
+			'core.ucp_pm_view_message'			=> 'ucp_view_message',
+			'core.memberlist_view_profile'		=> 'member_view_profile'
 		];
 
 	}
@@ -223,6 +226,85 @@ class listener implements EventSubscriberInterface {
 			'USER_HAS_NO_REP'		=> ( ANONYMOUS === (int) $post_author_id ) ? true : false,
 			'USER_TOTAL_REP'		=> $user_total_rep
 		] );
+
+	}
+
+	/**
+	 * @todo
+	 */
+	public function ucp_view_message( $event ) {
+
+		/**
+		 * Capture the user id.
+		 */
+		$user_id = $event[ 'user_info' ][ 'user_id' ];
+
+		/**
+		 * Get reputation score for this user.
+		 */
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'1\''
+ 		);
+ 		$user_liked = $this->db->sql_fetchrow( $result );
+ 		$this->db->sql_freeresult( $result );
+
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'0\''
+ 		);
+ 		$user_disliked = $this->db->sql_fetchrow( $result );
+ 		$this->db->sql_freeresult( $result );
+
+		/**
+		 * Calculate the user's rep score.
+		 */
+		$user_total_rep = intval( $user_liked[ 'COUNT(*)' ] ) - intval( $user_disliked[ 'COUNT(*)' ] );
+
+		/**
+		 * Merge our template vars.
+		 */
+		 $this->template->assign_vars( [
+			'USER_HAS_NO_REP'	=> ( ANONYMOUS === (int) $user_id ) ? true : false,
+ 			'USER_TOTAL_REP'	=> $user_total_rep
+ 		] );
+
+	}
+
+	/**
+	 * @todo
+	 */
+	public function member_view_profile( $event ) {
+
+		/**
+		 * Capture the user id.
+		 */
+		$user_id = $event[ 'member' ][ 'user_id' ];
+
+		/**
+		 * Get reputation score for this user.
+		 */
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'1\''
+ 		);
+ 		$user_liked = $this->db->sql_fetchrow( $result );
+ 		$this->db->sql_freeresult( $result );
+
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'0\''
+ 		);
+ 		$user_disliked = $this->db->sql_fetchrow( $result );
+ 		$this->db->sql_freeresult( $result );
+
+		/**
+		 * Calculate the user's rep score.
+		 */
+		$user_total_rep = intval( $user_liked[ 'COUNT(*)' ] ) - intval( $user_disliked[ 'COUNT(*)' ] );
+
+		/**
+		 * Merge our template vars.
+		 */
+		 $this->template->assign_vars( [
+ 			'USER_TOTAL_REP' => $user_total_rep
+ 		] );
 
 	}
 
