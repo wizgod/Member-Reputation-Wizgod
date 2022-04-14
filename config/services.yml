@@ -23,6 +23,7 @@ services:
         arguments:
             - '@auth'
             - '@dbal.conn'
+            - '@language'
             - '@request'
             - '@user'
             - '%core.table_prefix%'
@@ -31,3 +32,12 @@ services:
 
     danieltj.memberreputation.dislike_post:
         class: danieltj\memberreputation\controller\dislike_post
+        arguments:
+            - '@auth'
+            - '@dbal.conn'
+            - '@language'
+            - '@request'
+            - '@user'
+            - '%core.table_prefix%'
+            - '%core.root_path%'
+            - '%core.php_ext%'

@@ -1,1 +1,3 @@
-<dd class="profile-rep"><strong>{{ lang( 'REPUTATION' ) ~ lang( 'COLON' ) }}</strong> {{ postrow.USER_TOTAL_REP }}</dd>
+{% if not postrow.USER_HAS_NO_REP %}
+	<dd class="profile-rep"><strong>{{ lang( 'REPUTATION' ) ~ lang( 'COLON' ) }}</strong> {{ postrow.USER_TOTAL_REP }}</dd>
+{% endif %}

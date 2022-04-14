@@ -1,6 +1,6 @@
 {% if S_USER_LOGGED_IN and not S_IS_BOT %}
 
-	{% if postrow.U_CAN_LIKE and postrow.U_CAN_LIKE_POST %}
+	{% if postrow.U_CAN_LIKE and postrow.U_CAN_LIKE_POST and not postrow.U_HAS_DISLIKED_POST %}
 		<li>
 			<a href="{postrow.U_LIKE_POST_URL}" title="{% if postrow.U_HAS_LIKED_POST %}{{ lang( 'BUTTON_TITLE_REMOVE_LIKE' ) }}{% else %}{{ lang( 'BUTTON_TITLE_ADD_LIKE' ) }}{% endif %}" class="button{% if not postrow.U_HAS_LIKED_POST %} button-icon-only{% endif %}">
 				{% if postrow.U_HAS_LIKED_POST %}
@@ -12,7 +12,7 @@
 		</li>
 	{% endif %}
 
-	{% if postrow.U_CAN_DISLIKE and postrow.U_CAN_DISLIKE_POST %}
+	{% if postrow.U_CAN_DISLIKE and postrow.U_CAN_DISLIKE_POST and not postrow.U_HAS_LIKED_POST %}
 		<li>
 			<a href="{postrow.U_DISLIKE_POST_URL}" title="{% if postrow.U_HAS_DISLIKED_POST %}{{ lang( 'BUTTON_TITLE_REMOVE_DISLIKE' ) }}{% else %}{{ lang( 'BUTTON_TITLE_ADD_DISLIKE' ) }}{% endif %}" class="button{% if not postrow.U_HAS_DISLIKED_POST %} button-icon-only{% endif %}">
 				{% if postrow.U_HAS_DISLIKED_POST %}

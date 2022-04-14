@@ -166,6 +166,8 @@ class listener implements EventSubscriberInterface {
 		$likes = $this->db->sql_fetchrow( $result );
 		$this->db->sql_freeresult( $result );
 
+		//var_dump( $likes );
+
 		/**
 		 * Fetch dislike status for this post.
 		 */
@@ -179,20 +181,21 @@ class listener implements EventSubscriberInterface {
 		 * Get reputation score for this user.
 		 */
 		$result = $this->db->sql_query(
- 			'SELECT * FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $post_author_id . '\' AND post_post_id = \'' . $post_id . '\''
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $post_author_id . '\' AND type = \'1\''
  		);
- 		$user_likes_dislikes = $this->db->sql_fetchrow( $result );
+ 		$user_liked = $this->db->sql_fetchrow( $result );
  		$this->db->sql_freeresult( $result );
 
-		if ( ! $user_likes_dislikes ) {
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $post_author_id . '\' AND type = \'0\''
+ 		);
+ 		$user_disliked = $this->db->sql_fetchrow( $result );
+ 		$this->db->sql_freeresult( $result );
 
-			$user_rep_score = 0;
-
-		} else {
-
-			$user_rep_score = 0;
-
-		}
+		/**
+		 * Calculate the user's rep score.
+		 */
+		$user_total_rep = intval( $user_liked[ 'COUNT(*)' ] ) - intval( $user_disliked[ 'COUNT(*)' ] );
 
 		/**
 		 * Create link & dislike URLs.
@@ -217,7 +220,8 @@ class listener implements EventSubscriberInterface {
 			'U_HAS_DISLIKED_POST'	=> ( $dislikes ) ? true : false,
 			'U_LIKE_POST_URL'		=> $like_post_url,
 			'U_DISLIKE_POST_URL'	=> $dislike_post_url,
-			'USER_TOTAL_REP'		=> $user_rep_score
+			'USER_HAS_NO_REP'		=> ( ANONYMOUS === (int) $post_author_id ) ? true : false,
+			'USER_TOTAL_REP'		=> $user_total_rep
 		] );
 
 	}

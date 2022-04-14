@@ -10,6 +10,7 @@ namespace danieltj\memberreputation\controller;
 
 use phpbb\auth\auth;
 use phpbb\db\driver\driver_interface as database;
+use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\user;
 
@@ -24,6 +25,11 @@ class like_post implements like_interface {
 	 * @var driver_interface
 	 */
 	protected $db;
+
+	/**
+	 * @var language
+	 */
+	protected $language;
 
 	/**
 	 * @var request
@@ -53,10 +59,11 @@ class like_post implements like_interface {
 	/**
 	 * Constructor.
 	 */
-	public function __construct( auth $auth, database $db, request $request, user $user, string $table_prefix, string $root_path, string $php_ext ) {
+	public function __construct( auth $auth, database $db, language $language, request $request, user $user, string $table_prefix, string $root_path, string $php_ext ) {
 
 		$this->auth = $auth;
 		$this->db = $db;
+		$this->language = $language;
 		$this->request = $request;
 		$this->user = $user;
 		$this->table_prefix = $table_prefix;
@@ -80,7 +87,7 @@ class like_post implements like_interface {
 
 		if ( ! $post ) {
 
-			throw new \phpbb\exception\http_exception( 404, 'LIKE_POST_NOT_EXIST' );
+			throw new \phpbb\exception\http_exception( 404, 'CANNOT_LIKE_NO_EXIST_POST' );
 
 		}
 
@@ -90,6 +97,15 @@ class like_post implements like_interface {
 		$auth_id = (int) $this->user->data[ 'user_id' ];
 		$post_id = (int) $post[ 'post_id' ];
 		$post_author_id = (int) $post[ 'poster_id' ];
+
+		/**
+		 * CSRF token check.
+		 */
+		if ( ! check_link_hash( $this->request->variable( 'hash', '' ), 'like_post' ) ) {
+
+			throw new \phpbb\exception\http_exception( 500, 'CANNOT_PASS_BAD_CSRF_TOKEN' );
+
+		}
 
 		/**
 		 * Don't support Ajax right now, sorry.
@@ -134,9 +150,7 @@ class like_post implements like_interface {
 		if ( $has_liked ) {
 
 			$sql = 'DELETE FROM ' . $this->table_prefix . 'reputation WHERE user_id = \'' . $auth_id . '\' AND post_post_id = \'' . $post_id . '\' AND type = \'1\'';
-
 			$this->db->sql_query( $sql );
-
 			$this->db->sql_transaction( 'commit' );
 
 		} else {
@@ -149,15 +163,16 @@ class like_post implements like_interface {
 				'created_at'		=> date( 'Y-m-d H:i:s' )
 			];
 
-			$sql = 'INSERT INTO ' . $this->table_prefix . ' ' . $this->db->sql_build_array( 'INSERT', $vars );
-
+			$sql = 'INSERT INTO ' . $this->table_prefix . 'reputation ' . $this->db->sql_build_array( 'INSERT', $vars );
 			$this->db->sql_query( $sql );
-
 			$this->db->sql_transaction( 'commit' );
 
 		}
 
-		die();
+		/**
+		 * Go back to the post.
+		 */
+		redirect( append_sid( 'viewtopic.' . $this->php_ext . '?p=' . $post_id . '#p' . $post_id ) );
 
 	}
 
