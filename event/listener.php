@@ -8,6 +8,8 @@
 
 namespace danieltj\memberreputation\event;
 
+use phpbb\auth\auth;
+use phpbb\db\driver\driver_interface as database;
 use phpbb\controller\helper;
 use phpbb\language\language;
 use phpbb\request\request;
@@ -16,6 +18,16 @@ use phpbb\user;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class listener implements EventSubscriberInterface {
+
+	/**
+	 * @var auth
+	 */
+	protected $auth;
+
+	/**
+	 * @var driver_interface
+	 */
+	protected $db;
 
 	/**
 	 * @var helper
@@ -45,6 +57,11 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * @var string
 	 */
+	protected $table_prefix;
+
+	/**
+	 * @var string
+	 */
 	protected $root_path;
 
 	/**
@@ -55,12 +72,16 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * Constructor.
 	 */
-	public function __construct( helper $helper, language $language, request $request, template $template, user $user, string $root_path, string $php_ext ) {
+	public function __construct( auth $auth, database $db, helper $helper, language $language, request $request, template $template, user $user, string $table_prefix, string $root_path, string $php_ext ) {
 
+		$this->auth = $auth;
+		$this->db = $db;
+		$this->helper = $helper;
 		$this->language = $language;
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
+		$this->table_prefix = $table_prefix;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
 
@@ -73,7 +94,8 @@ class listener implements EventSubscriberInterface {
 
 		return [
 			'core.user_setup'					=> 'add_languages',
-			'core.permissions'					=> 'add_permissions'
+			'core.permissions'					=> 'add_permissions',
+			'core.viewtopic_modify_post_row'	=> 'topic_modify_post_row'
 		];
 
 	}
@@ -111,6 +133,92 @@ class listener implements EventSubscriberInterface {
 		] );
 
 		$event[ 'permissions' ] = $permissions;
+
+	}
+
+	/**
+	 * @todo
+	 */
+	public function topic_modify_post_row( $event ) {
+
+		/**
+		 * Ignore guest posts.
+		 */
+		if ( ANONYMOUS == $event[ 'row' ][ 'post_id' ] ) {
+
+			return;
+
+		}
+
+		/**
+		 * Store important vars.
+		 */
+		$auth_id = (int) $this->user->data[ 'user_id' ];
+		$post_id = (int) $event[ 'row' ][ 'post_id' ];
+		$post_author_id = (int) $event[ 'row' ][ 'user_id' ];
+
+		/**
+		 * Fetch like status for this post.
+		 */
+		$result = $this->db->sql_query(
+			'SELECT * FROM ' . $this->table_prefix . 'reputation WHERE user_id = \'' . $auth_id . '\' AND post_post_id = \'' . $post_id . '\' AND type = \'1\''
+		);
+		$likes = $this->db->sql_fetchrow( $result );
+		$this->db->sql_freeresult( $result );
+
+		/**
+		 * Fetch dislike status for this post.
+		 */
+		$result = $this->db->sql_query(
+			'SELECT * FROM ' . $this->table_prefix . 'reputation WHERE user_id = \'' . $auth_id . '\' AND post_post_id = \'' . $post_id . '\' AND type = \'0\''
+		);
+		$dislikes = $this->db->sql_fetchrow( $result );
+		$this->db->sql_freeresult( $result );
+
+		/**
+		 * Get reputation score for this user.
+		 */
+		$result = $this->db->sql_query(
+ 			'SELECT * FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $post_author_id . '\' AND post_post_id = \'' . $post_id . '\''
+ 		);
+ 		$user_likes_dislikes = $this->db->sql_fetchrow( $result );
+ 		$this->db->sql_freeresult( $result );
+
+		if ( ! $user_likes_dislikes ) {
+
+			$user_rep_score = 0;
+
+		} else {
+
+			$user_rep_score = 0;
+
+		}
+
+		/**
+		 * Create link & dislike URLs.
+		 */
+		$like_post_url = $this->helper->route( 'danieltj_memberreputation_like_post_controller', [
+			'post_id' => $post_id, 'hash' => generate_link_hash( 'like_post' )
+		] );
+
+		$dislike_post_url = $this->helper->route( 'danieltj_memberreputation_dislike_post_controller', [
+			'post_id' => $post_id, 'hash' => generate_link_hash( 'dislike_post' )
+		] );
+
+		/**
+		 * Merge our template vars.
+		 */
+		$event[ 'post_row' ] = array_merge( $event[ 'post_row' ], [
+			'U_CAN_LIKE'			=> ( ANONYMOUS !== (int) $post_author_id && $this->auth->acl_get( 'u_can_like' ) ) ? true : false,
+			'U_CAN_DISLIKE'			=> ( ANONYMOUS !== (int) $post_author_id && $this->auth->acl_get( 'u_can_dislike' ) ) ? true : false,
+			'U_CAN_LIKE_POST'		=> ( $auth_id !== $post_author_id ) ? true : false,
+			'U_CAN_DISLIKE_POST'	=> ( $auth_id !== $post_author_id ) ? true : false,
+			'U_HAS_LIKED_POST'		=> ( $likes ) ? true : false,
+			'U_HAS_DISLIKED_POST'	=> ( $dislikes ) ? true : false,
+			'U_LIKE_POST_URL'		=> $like_post_url,
+			'U_DISLIKE_POST_URL'	=> $dislike_post_url,
+			'USER_TOTAL_REP'		=> $user_rep_score
+		] );
 
 	}
 

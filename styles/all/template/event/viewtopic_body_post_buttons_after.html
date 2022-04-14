@@ -1,11 +1,27 @@
-<li>
-	<a href="{postrow.U_REP_LIKE}" title="{{ lang( 'USER_DO_LIKE_POST' ) }}" class="button button-icon-only">
-		<i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i><span class="sr-only">{L_BUTTON_LIKE_POST}</span>
-	</a>
-</li>
+{% if S_USER_LOGGED_IN and not S_IS_BOT %}
 
-<li>
-	<a href="{postrow.U_REP_DISLIKE}" title="{{ lang( 'USER_DO_DISLIKE_POST' ) }}" class="button button-icon-only">
-		<i class="icon fa-thumbs-down fa-fw" aria-hidden="true"></i><span class="sr-only">{L_BUTTON_DISLIKE_LIKE}</span>
-	</a>
-</li>
+	{% if postrow.U_CAN_LIKE and postrow.U_CAN_LIKE_POST %}
+		<li>
+			<a href="{postrow.U_LIKE_POST_URL}" title="{% if postrow.U_HAS_LIKED_POST %}{{ lang( 'BUTTON_TITLE_REMOVE_LIKE' ) }}{% else %}{{ lang( 'BUTTON_TITLE_ADD_LIKE' ) }}{% endif %}" class="button{% if not postrow.U_HAS_LIKED_POST %} button-icon-only{% endif %}">
+				{% if postrow.U_HAS_LIKED_POST %}
+					<i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i>&nbsp;{{ lang( 'BUTTON_HAS_LIKE_POST' ) }}
+				{% else %}
+					<i class="icon fa-thumbs-up fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang( 'BUTTON_LIKE_POST' ) }}</span>
+				{% endif %}
+			</a>
+		</li>
+	{% endif %}
+
+	{% if postrow.U_CAN_DISLIKE and postrow.U_CAN_DISLIKE_POST %}
+		<li>
+			<a href="{postrow.U_DISLIKE_POST_URL}" title="{% if postrow.U_HAS_DISLIKED_POST %}{{ lang( 'BUTTON_TITLE_REMOVE_DISLIKE' ) }}{% else %}{{ lang( 'BUTTON_TITLE_ADD_DISLIKE' ) }}{% endif %}" class="button{% if not postrow.U_HAS_DISLIKED_POST %} button-icon-only{% endif %}">
+				{% if postrow.U_HAS_DISLIKED_POST %}
+					<i class="icon fa-thumbs-down fa-fw" aria-hidden="true"></i>&nbsp;{{ lang( 'BUTTON_HAS_DISLIKE_POST' ) }}
+				{% else %}
+					<i class="icon fa-thumbs-down fa-fw" aria-hidden="true"></i><span class="sr-only">{{ lang( 'BUTTON_DISLIKE_POST' ) }}</span>
+				{% endif %}
+			</a>
+		</li>
+	{% endif %}
+
+{% endif %}

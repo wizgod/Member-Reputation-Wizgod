@@ -5,11 +5,14 @@ services:
     danieltj.memberreputation.listener:
         class: danieltj\memberreputation\event\listener
         arguments:
+            - '@auth'
+            - '@dbal.conn'
             - '@controller.helper'
             - '@language'
             - '@request'
             - '@template'
             - '@user'
+            - '%core.table_prefix%'
             - '%core.root_path%'
             - '%core.php_ext%'
         tags:
@@ -17,6 +20,14 @@ services:
 
     danieltj.memberreputation.like_post:
         class: danieltj\memberreputation\controller\like_post
+        arguments:
+            - '@auth'
+            - '@dbal.conn'
+            - '@request'
+            - '@user'
+            - '%core.table_prefix%'
+            - '%core.root_path%'
+            - '%core.php_ext%'
 
     danieltj.memberreputation.dislike_post:
         class: danieltj\memberreputation\controller\dislike_post
