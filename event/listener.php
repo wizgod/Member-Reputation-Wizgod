@@ -15,6 +15,7 @@ use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\user;
+use danieltj\memberreputation\controller\functions;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class listener implements EventSubscriberInterface {
@@ -25,24 +26,9 @@ class listener implements EventSubscriberInterface {
 	protected $auth;
 
 	/**
-	 * @var driver_interface
-	 */
-	protected $db;
-
-	/**
 	 * @var helper
 	 */
 	protected $helper;
-
-	/**
-	 * @var language
-	 */
-	protected $language;
-
-	/**
-	 * @var request
-	 */
-	protected $request;
 
 	/**
 	 * @var template
@@ -55,35 +41,20 @@ class listener implements EventSubscriberInterface {
 	protected $user;
 
 	/**
-	 * @var string
+	 * @var functions
 	 */
-	protected $table_prefix;
-
-	/**
-	 * @var string
-	 */
-	protected $root_path;
-
-	/**
-	 * @var string
-	 */
-	protected $php_ext;
+	protected $functions;
 
 	/**
 	 * Constructor.
 	 */
-	public function __construct( auth $auth, database $db, helper $helper, language $language, request $request, template $template, user $user, string $table_prefix, string $root_path, string $php_ext ) {
+	public function __construct( auth $auth, helper $helper, template $template, user $user, functions $functions ) {
 
 		$this->auth = $auth;
-		$this->db = $db;
 		$this->helper = $helper;
-		$this->language = $language;
-		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
-		$this->table_prefix = $table_prefix;
-		$this->root_path = $root_path;
-		$this->php_ext = $php_ext;
+		$this->functions = $functions;
 
 	}
 
@@ -96,7 +67,6 @@ class listener implements EventSubscriberInterface {
 			'core.user_setup'					=> 'add_languages',
 			'core.permissions'					=> 'add_permissions',
 			'core.viewtopic_modify_post_row'	=> 'topic_modify_post_row',
-
 			'core.ucp_pm_view_message'			=> 'ucp_view_message',
 			'core.memberlist_view_profile'		=> 'member_view_profile'
 		];
@@ -163,42 +133,17 @@ class listener implements EventSubscriberInterface {
 		/**
 		 * Fetch like status for this post.
 		 */
-		$result = $this->db->sql_query(
-			'SELECT * FROM ' . $this->table_prefix . 'reputation WHERE user_id = \'' . $auth_id . '\' AND post_post_id = \'' . $post_id . '\' AND type = \'1\''
-		);
-		$likes = $this->db->sql_fetchrow( $result );
-		$this->db->sql_freeresult( $result );
-
-		//var_dump( $likes );
+		$likes = $this->functions->has_liked_post( $auth_id, $post_id );
 
 		/**
 		 * Fetch dislike status for this post.
 		 */
-		$result = $this->db->sql_query(
-			'SELECT * FROM ' . $this->table_prefix . 'reputation WHERE user_id = \'' . $auth_id . '\' AND post_post_id = \'' . $post_id . '\' AND type = \'0\''
-		);
-		$dislikes = $this->db->sql_fetchrow( $result );
-		$this->db->sql_freeresult( $result );
+		$dislikes = $this->functions->has_disliked_post( $auth_id, $post_id );
 
 		/**
-		 * Get reputation score for this user.
+		 * Fetch the post author's reputation.
 		 */
-		$result = $this->db->sql_query(
- 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $post_author_id . '\' AND type = \'1\''
- 		);
- 		$user_liked = $this->db->sql_fetchrow( $result );
- 		$this->db->sql_freeresult( $result );
-
-		$result = $this->db->sql_query(
- 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $post_author_id . '\' AND type = \'0\''
- 		);
- 		$user_disliked = $this->db->sql_fetchrow( $result );
- 		$this->db->sql_freeresult( $result );
-
-		/**
-		 * Calculate the user's rep score.
-		 */
-		$user_total_rep = intval( $user_liked[ 'COUNT(*)' ] ) - intval( $user_disliked[ 'COUNT(*)' ] );
+		$user_total_rep = $this->functions->user_rep_score( $post_author_id );
 
 		/**
 		 * Create link & dislike URLs.
@@ -240,24 +185,9 @@ class listener implements EventSubscriberInterface {
 		$user_id = $event[ 'user_info' ][ 'user_id' ];
 
 		/**
-		 * Get reputation score for this user.
+		 * Fetch the post author's reputation.
 		 */
-		$result = $this->db->sql_query(
- 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'1\''
- 		);
- 		$user_liked = $this->db->sql_fetchrow( $result );
- 		$this->db->sql_freeresult( $result );
-
-		$result = $this->db->sql_query(
- 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'0\''
- 		);
- 		$user_disliked = $this->db->sql_fetchrow( $result );
- 		$this->db->sql_freeresult( $result );
-
-		/**
-		 * Calculate the user's rep score.
-		 */
-		$user_total_rep = intval( $user_liked[ 'COUNT(*)' ] ) - intval( $user_disliked[ 'COUNT(*)' ] );
+		$user_total_rep = $this->functions->user_rep_score( $user_id );
 
 		/**
 		 * Merge our template vars.
@@ -280,24 +210,9 @@ class listener implements EventSubscriberInterface {
 		$user_id = $event[ 'member' ][ 'user_id' ];
 
 		/**
-		 * Get reputation score for this user.
+		 * Fetch the post author's reputation.
 		 */
-		$result = $this->db->sql_query(
- 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'1\''
- 		);
- 		$user_liked = $this->db->sql_fetchrow( $result );
- 		$this->db->sql_freeresult( $result );
-
-		$result = $this->db->sql_query(
- 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_author_id = \'' . $user_id . '\' AND type = \'0\''
- 		);
- 		$user_disliked = $this->db->sql_fetchrow( $result );
- 		$this->db->sql_freeresult( $result );
-
-		/**
-		 * Calculate the user's rep score.
-		 */
-		$user_total_rep = intval( $user_liked[ 'COUNT(*)' ] ) - intval( $user_disliked[ 'COUNT(*)' ] );
+		$user_total_rep = $this->functions->user_rep_score( $user_id );
 
 		/**
 		 * Merge our template vars.

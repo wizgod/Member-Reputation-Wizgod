@@ -6,15 +6,10 @@ services:
         class: danieltj\memberreputation\event\listener
         arguments:
             - '@auth'
-            - '@dbal.conn'
             - '@controller.helper'
-            - '@language'
-            - '@request'
             - '@template'
             - '@user'
-            - '%core.table_prefix%'
-            - '%core.root_path%'
-            - '%core.php_ext%'
+            - '@danieltj.memberreputation.controller.functions'
         tags:
             - { name: event.listener }
 
@@ -22,16 +17,22 @@ services:
         class: danieltj\memberreputation\controller\like_post
         arguments:
             - '@auth'
-            - '@dbal.conn'
-            - '@language'
             - '@request'
             - '@user'
-            - '%core.table_prefix%'
-            - '%core.root_path%'
+            - '@danieltj.memberreputation.controller.functions'
             - '%core.php_ext%'
 
     danieltj.memberreputation.dislike_post:
         class: danieltj\memberreputation\controller\dislike_post
+        arguments:
+            - '@auth'
+            - '@request'
+            - '@user'
+            - '@danieltj.memberreputation.controller.functions'
+            - '%core.php_ext%'
+
+    danieltj.memberreputation.controller.functions:
+        class: danieltj\memberreputation\controller\functions
         arguments:
             - '@auth'
             - '@dbal.conn'
