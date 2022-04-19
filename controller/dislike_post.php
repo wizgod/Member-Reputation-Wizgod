@@ -11,7 +11,7 @@ namespace danieltj\memberreputation\controller;
 use phpbb\auth\auth;
 use phpbb\request\request;
 use phpbb\user;
-use danieltj\memberreputation\controller\functions;
+use danieltj\memberreputation\core\functions;
 
 class dislike_post implements dislike_interface {
 

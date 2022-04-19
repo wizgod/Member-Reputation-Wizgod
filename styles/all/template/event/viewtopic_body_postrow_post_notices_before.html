@@ -1,0 +1,12 @@
+{% if postrow.LIKE_MESSAGE %}
+	<div class="notice">
+		{% if postrow.U_HAS_LIKED_POST %}
+			<i class="icon fa-thumbs-up fa-fw icon-lightgray" aria-hidden="true"></i>
+		{% else %}
+			{% if postrow.U_HAS_DISLIKED_POST %}
+				<i class="icon fa-thumbs-down fa-fw icon-lightgray" aria-hidden="true"></i>
+			{% endif %}
+		{% endif %}
+		{{ postrow.LIKE_MESSAGE }}
+	</div>
+{% endif %}

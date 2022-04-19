@@ -8,8 +8,9 @@ services:
             - '@auth'
             - '@controller.helper'
             - '@template'
+            - '@language'
             - '@user'
-            - '@danieltj.memberreputation.controller.functions'
+            - '@danieltj.memberreputation.core.functions'
         tags:
             - { name: event.listener }
 
@@ -19,7 +20,7 @@ services:
             - '@auth'
             - '@request'
             - '@user'
-            - '@danieltj.memberreputation.controller.functions'
+            - '@danieltj.memberreputation.core.functions'
             - '%core.php_ext%'
 
     danieltj.memberreputation.dislike_post:
@@ -28,11 +29,11 @@ services:
             - '@auth'
             - '@request'
             - '@user'
-            - '@danieltj.memberreputation.controller.functions'
+            - '@danieltj.memberreputation.core.functions'
             - '%core.php_ext%'
 
-    danieltj.memberreputation.controller.functions:
-        class: danieltj\memberreputation\controller\functions
+    danieltj.memberreputation.core.functions:
+        class: danieltj\memberreputation\core\functions
         arguments:
             - '@auth'
             - '@dbal.conn'

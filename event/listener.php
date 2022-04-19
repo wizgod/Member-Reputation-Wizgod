@@ -15,7 +15,7 @@ use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\user;
-use danieltj\memberreputation\controller\functions;
+use danieltj\memberreputation\core\functions;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class listener implements EventSubscriberInterface {
@@ -36,6 +36,11 @@ class listener implements EventSubscriberInterface {
 	protected $template;
 
 	/**
+	 * @var language
+	 */
+	protected $language;
+
+	/**
 	 * @var user
 	 */
 	protected $user;
@@ -48,12 +53,13 @@ class listener implements EventSubscriberInterface {
 	/**
 	 * Constructor.
 	 */
-	public function __construct( auth $auth, helper $helper, template $template, user $user, functions $functions ) {
+	public function __construct( auth $auth, helper $helper, template $template, language $language, user $user, functions $functions ) {
 
 		$this->auth = $auth;
 		$this->helper = $helper;
 		$this->template = $template;
 		$this->user = $user;
+		$this->language = $language;
 		$this->functions = $functions;
 
 	}
@@ -133,17 +139,88 @@ class listener implements EventSubscriberInterface {
 		/**
 		 * Fetch like status for this post.
 		 */
-		$likes = $this->functions->has_liked_post( $auth_id, $post_id );
+		$has_liked = $this->functions->has_liked_post( $auth_id, $post_id );
 
 		/**
 		 * Fetch dislike status for this post.
 		 */
-		$dislikes = $this->functions->has_disliked_post( $auth_id, $post_id );
+		$has_disliked = $this->functions->has_disliked_post( $auth_id, $post_id );
+
+		/**
+		 * Fetch like status for this post.
+		 */
+		$like_count = $this->functions->post_like_count( $post_id );
+
+		/**
+		 * Fetch dislike status for this post.
+		 */
+		$dislike_count = $this->functions->post_dislike_count( $post_id );
 
 		/**
 		 * Fetch the post author's reputation.
 		 */
 		$user_total_rep = $this->functions->user_rep_score( $post_author_id );
+
+		/**
+		 * The like/dislike status message for each post.
+		 */
+		$like_message = false;
+
+		/**
+		 * Figure out what like message to show.
+		 *
+		 * I could probably write this more efficiently but I could
+		 * always learn to cook and you don't see me doing either do you?
+		 */
+		if ( $like_count || $dislike_count ) {
+
+			if ( $like_count && $dislike_count ) {
+
+				if ( 1 === $like_count && 1 === $dislike_count ) {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_ONE_DISLIKED_BY_ONE', $like_count, $dislike_count );
+
+				} elseif ( 1 < $like_count && 1 === $dislike_count ) {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_MANY_DISLIKED_BY_ONE', $like_count, $dislike_count );
+
+				} elseif ( 1 === $like_count && 1 < $dislike_count ) {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_ONE_DISLIKED_BY_MANY', $like_count, $dislike_count );
+
+				} elseif ( 1 < $like_count && 1 < $dislike_count ) {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_MANY_DISLIKED_BY_MANY', $like_count, $dislike_count );
+
+				}
+
+			} elseif ( $like_count && ! $dislike_count ) {
+
+				if ( 1 === $like_count ) {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_ONE_DISLIKED_BY_NONE', $like_count );
+
+				} else {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_MANY_DISLIKED_BY_NONE', $like_count );
+
+				}
+
+			} elseif ( ! $like_count && $dislike_count ) {
+
+				if ( 1 === $dislike_count ) {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_NONE_DISLIKED_BY_ONE', $dislike_count );
+
+				} else {
+
+					$like_message = $this->language->lang( 'POST_LIKED_BY_NONE_DISLIKED_BY_MANY', $dislike_count );
+
+				}
+
+			}
+
+		}
 
 		/**
 		 * Create link & dislike URLs.
@@ -164,10 +241,11 @@ class listener implements EventSubscriberInterface {
 			'U_CAN_DISLIKE'			=> ( ANONYMOUS !== (int) $post_author_id && $this->auth->acl_get( 'u_can_dislike' ) ) ? true : false,
 			'U_CAN_LIKE_POST'		=> ( $auth_id !== $post_author_id ) ? true : false,
 			'U_CAN_DISLIKE_POST'	=> ( $auth_id !== $post_author_id ) ? true : false,
-			'U_HAS_LIKED_POST'		=> ( $likes ) ? true : false,
-			'U_HAS_DISLIKED_POST'	=> ( $dislikes ) ? true : false,
+			'U_HAS_LIKED_POST'		=> ( $has_liked ) ? true : false,
+			'U_HAS_DISLIKED_POST'	=> ( $has_disliked ) ? true : false,
 			'U_LIKE_POST_URL'		=> $like_post_url,
 			'U_DISLIKE_POST_URL'	=> $dislike_post_url,
+			'LIKE_MESSAGE'			=> $like_message,
 			'USER_HAS_NO_REP'		=> ( ANONYMOUS === (int) $post_author_id ) ? true : false,
 			'USER_TOTAL_REP'		=> $user_total_rep
 		] );

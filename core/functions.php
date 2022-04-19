@@ -6,7 +6,7 @@
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
  */
 
-namespace danieltj\memberreputation\controller;
+namespace danieltj\memberreputation\core;
 
 use phpbb\auth\auth;
 use phpbb\db\driver\driver_interface as database;
@@ -92,6 +92,60 @@ final class functions {
 		if ( $post ) {
 
 			return $post;
+
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Fetch the number of post likes.
+	 *
+	 * @param integer $post_id The post ID to get likes for.
+	 *
+	 * @return array|boolean The like data or false if none.
+	 */
+	public function post_like_count( $post_id = 0 ) {
+
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_post_id = \'' . $post_id . '\' AND type = \'1\''
+ 		);
+
+ 		$likes = $this->db->sql_fetchrow( $result );
+
+ 		$this->db->sql_freeresult( $result );
+
+		if ( $likes && isset( $likes[ 'COUNT(*)' ] ) ) {
+
+			return (int) $likes[ 'COUNT(*)' ];
+
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Fetch the number of post dislikes.
+	 *
+	 * @param integer $post_id The post ID to get dislikes for.
+	 *
+	 * @return array|boolean The dislikes data or false if none.
+	 */
+	public function post_dislike_count( $post_id = 0 ) {
+
+		$result = $this->db->sql_query(
+ 			'SELECT COUNT(*) FROM ' . $this->table_prefix . 'reputation WHERE post_post_id = \'' . $post_id . '\' AND type = \'0\''
+ 		);
+
+ 		$dislikes = $this->db->sql_fetchrow( $result );
+
+ 		$this->db->sql_freeresult( $result );
+
+		if ( $dislikes && isset( $dislikes[ 'COUNT(*)' ] ) ) {
+
+			return (int) $dislikes[ 'COUNT(*)' ];
 
 		}
 
