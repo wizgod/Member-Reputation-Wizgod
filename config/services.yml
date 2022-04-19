@@ -20,6 +20,7 @@ services:
             - '@auth'
             - '@request'
             - '@user'
+            - '@notification_manager'
             - '@danieltj.memberreputation.core.functions'
             - '%core.php_ext%'
 
@@ -29,6 +30,7 @@ services:
             - '@auth'
             - '@request'
             - '@user'
+            - '@notification_manager'
             - '@danieltj.memberreputation.core.functions'
             - '%core.php_ext%'
 
@@ -43,3 +45,23 @@ services:
             - '%core.table_prefix%'
             - '%core.root_path%'
             - '%core.php_ext%'
+
+    danieltj.memberreputation.notification.type.like:
+        class: danieltj\memberreputation\notification\type\like
+        shared: false
+        parent: notification.type.base
+        calls:
+            - [ set_controller_helper, [ '@controller.helper' ] ]
+            - [ set_user_loader, [ '@user_loader' ] ]
+        tags:
+            - { name: notification.type }
+
+    danieltj.memberreputation.notification.type.dislike:
+        class: danieltj\memberreputation\notification\type\dislike
+        shared: false
+        parent: notification.type.base
+        calls:
+            - [ set_controller_helper, [ '@controller.helper' ] ]
+            - [ set_user_loader, [ '@user_loader' ] ]
+        tags:
+            - { name: notification.type }

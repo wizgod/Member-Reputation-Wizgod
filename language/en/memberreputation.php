@@ -49,6 +49,9 @@ $lang = array_merge( $lang, [
 	'INFO_POST_WAS_DISLIKED'		=> 'You have disliked this post.',
 	'INFO_POST_WAS_UNDISLIKED'		=> 'You have removed your dislike from this post.',
 
+	'UCP_NOTIFIED_POST_LIKED'		=> '<strong>Reputation:</strong><br />%1$s liked one of your posts.',
+	'UCP_NOTIFIED_POST_DISLIKED'	=> '<strong>Reputation:</strong><br />%1$s disliked one of your posts.',
+
 	'POST_LIKED_BY_ONE_DISLIKED_BY_NONE'		=> '%s person likes this post.',
 	'POST_LIKED_BY_ONE_DISLIKED_BY_ONE'			=> '%s person likes and %s person dislikes this post.',
 	'POST_LIKED_BY_ONE_DISLIKED_BY_MANY'		=> '%s person likes and %s people dislike this post.',

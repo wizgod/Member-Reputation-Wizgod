@@ -11,6 +11,7 @@ namespace danieltj\memberreputation\controller;
 use phpbb\auth\auth;
 use phpbb\request\request;
 use phpbb\user;
+use phpbb\notification\manager as notifications;
 use danieltj\memberreputation\core\functions;
 
 class dislike_post implements dislike_interface {
@@ -31,6 +32,11 @@ class dislike_post implements dislike_interface {
 	protected $user;
 
 	/**
+	 * @var notifications
+	 */
+	protected $notifications;
+
+	/**
 	 * @var functions
 	 */
 	protected $functions;
@@ -43,11 +49,12 @@ class dislike_post implements dislike_interface {
 	/**
 	 * Constructor.
 	 */
-	public function __construct( auth $auth, request $request, user $user, functions $functions, string $php_ext ) {
+	public function __construct( auth $auth, request $request, user $user, notifications $notifications, functions $functions, string $php_ext ) {
 
 		$this->auth = $auth;
 		$this->request = $request;
 		$this->user = $user;
+		$this->notifications = $notifications;
 		$this->functions = $functions;
 		$this->php_ext = $php_ext;
 
@@ -118,11 +125,21 @@ class dislike_post implements dislike_interface {
 		 */
 		if ( $this->functions->has_disliked_post( $auth_id, $post_id ) ) {
 
-			$like_post = $this->functions->remove_dislike( $auth_id, $post_id );
+			$dislike_post = $this->functions->remove_dislike( $auth_id, $post_id );
 
 		} else {
 
 			$dislike_post = $this->functions->dislike_post( $auth_id, $post_author_id, $post_id );
+
+			/**
+			 * Notify the user.
+			 */
+			$this->notifications->add_notifications( 'danieltj.memberreputation.notification.type.dislike', [
+				'dislike_id'		=> $dislike_post,
+				'user_id'			=> $auth_id,
+				'post_author_id'	=> $post_author_id,
+				'post_post_id'		=> $post_id
+			] );
 
 		}
 

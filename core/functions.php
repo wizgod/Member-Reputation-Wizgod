@@ -232,7 +232,7 @@ final class functions {
 
 		$this->db->sql_transaction( 'commit' );
 
-		return true;
+		return $this->db->sql_nextid();
 
 	}
 
@@ -279,7 +279,7 @@ final class functions {
 
 		$this->db->sql_transaction( 'commit' );
 
-		return true;
+		return $this->db->sql_nextid();
 
 	}
 
