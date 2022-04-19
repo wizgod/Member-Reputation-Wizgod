@@ -170,7 +170,7 @@ class listener implements EventSubscriberInterface {
 		 * Figure out what like message to show.
 		 *
 		 * I could probably write this more efficiently but I could
-		 * always learn to cook and you don't see me doing either do you?
+		 * also learn to cook and you don't see me doing either do you?
 		 */
 		if ( $like_count || $dislike_count ) {
 
