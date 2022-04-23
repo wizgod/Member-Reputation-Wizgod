@@ -21,6 +21,16 @@ class like extends \phpbb\notification\type\base {
 	protected $user_loader;
 
 	/**
+	* Notification option data (for outputting to the user)
+	*
+	* @var bool|array False if the service should use it's default data
+	* 					Array of data (including keys 'id', 'lang', and 'group')
+	*/
+	static public $notification_option = [
+		'lang'	=> 'NOTIFICATION_TYPE_DANIELTJ_LIKE',
+	];
+
+	/**
 	 * Set the controller helper.
 	 *
 	 * @param \phpbb\controller\helper $helper
@@ -132,12 +142,7 @@ class like extends \phpbb\notification\type\base {
 	 */
 	public function get_title() {
 
-		/**
-		 * Get the username with group colour.
-		 */
-		$username = $this->user_loader->get_username( $this->get_data( 'user_id' ), 'no_profile' );
-
-		return $this->language->lang( 'UCP_NOTIFIED_POST_LIKED', $username );
+		return $this->language->lang( 'UCP_NOTIFIED_POST_LIKED' );
 
 	}
 
@@ -182,6 +187,7 @@ class like extends \phpbb\notification\type\base {
 	 */
 	public function create_insert_array( $data, $pre_create_data = [] ) {
 
+		$this->set_data( 'like_id', $data[ 'like_id' ] );
 		$this->set_data( 'user_id', $data[ 'user_id' ] );
 		$this->set_data( 'post_author_id', $data[ 'post_author_id' ] );
 		$this->set_data( 'post_post_id', $data[ 'post_post_id' ] );
