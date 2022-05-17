@@ -232,7 +232,7 @@ final class functions {
 		$sql = 'INSERT INTO ' . $this->table_prefix . 'reputation ' . $this->db->sql_build_array( 'INSERT', $sql_insert);
 		$this->db->sql_query($sql);
 
-		$this->db->sql_transaction('commit');// Where the hell is $this->db->sql_transaction('begin'); only used when running multiple queries usually.
+		$this->db->sql_transaction('commit');// Where is $this->db->sql_transaction('begin'); only used when running multiple queries usually.
 
 		return $this->db->sql_nextid();
 
@@ -279,7 +279,7 @@ final class functions {
 
 		$this->db->sql_query( $sql );
 
-		$this->db->sql_transaction( 'commit' );// Where the hell is $this->db->sql_transaction('begin');
+		$this->db->sql_transaction( 'commit' );// Where is $this->db->sql_transaction('begin');
 
 		return $this->db->sql_nextid();
 
