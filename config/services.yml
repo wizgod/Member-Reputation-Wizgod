@@ -11,6 +11,7 @@ services:
             - '@language'
             - '@user'
             - '@danieltj.memberreputation.core.functions'
+            - '@path_helper'
         tags:
             - { name: event.listener }
 
