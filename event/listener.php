@@ -15,6 +15,7 @@ use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\user;
+use phpbb\path_helper;
 use danieltj\memberreputation\core\functions;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -51,9 +52,14 @@ class listener implements EventSubscriberInterface {
 	protected $functions;
 
 	/**
+	 * @var path_helper
+	 */
+	protected $path_helper;
+
+	/**
 	 * Constructor.
 	 */
-	public function __construct( auth $auth, helper $helper, template $template, language $language, user $user, functions $functions ) {
+	public function __construct( auth $auth, helper $helper, template $template, language $language, user $user, functions $functions, path_helper $path_helper ) {
 
 		$this->auth = $auth;
 		$this->helper = $helper;
@@ -61,7 +67,7 @@ class listener implements EventSubscriberInterface {
 		$this->user = $user;
 		$this->language = $language;
 		$this->functions = $functions;
-
+		$this->path_helper = $path_helper;
 	}
 
 	/**
@@ -74,7 +80,8 @@ class listener implements EventSubscriberInterface {
 			'core.permissions'					=> 'add_permissions',
 			'core.viewtopic_modify_post_row'	=> 'topic_modify_post_row',
 			'core.ucp_pm_view_message'			=> 'ucp_view_message',
-			'core.memberlist_view_profile'		=> 'member_view_profile'
+			'core.memberlist_view_profile'		=> 'member_view_profile',
+			'core.page_header' 					=> 'load_css',
 		];
 
 	}
@@ -298,7 +305,13 @@ class listener implements EventSubscriberInterface {
 		 $this->template->assign_vars( [
  			'USER_TOTAL_REP' => $user_total_rep
  		] );
-
 	}
 
+	/**
+	 * Load the css.
+	 */
+	public function load_css()
+	{
+		$this->template->assign_var('REPUTATION_CSS', $this->path_helper->get_web_root_path() . 'ext/danieltj/memberreputation/styles/all/theme/reputation.css');
+	}
 }
