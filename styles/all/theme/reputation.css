@@ -1,0 +1,8 @@
+#like a.button,
+#dislike a.button {
+	font-weight: normal;
+	font-size: 1em;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	color: grey;
+}
