@@ -22,6 +22,8 @@ Allows users to like or dislike posts, contributing to each member’s reputatio
 2. In the phpBB Admin Control Panel:  
    **Customize → Extensions → Enable "Member Reputation"**
 
+3. **Remember to update the user permissions**
+
 ---
 
 ## Requirements
@@ -51,6 +53,7 @@ When a user likes or dislikes a post:
 ## Credits
 
 Forked and modernized from github repository https://github.com/Steve-C/Member-Reputation from original code by Daniel James (https://github.com/danieltj27).
+
 Updated for PHP 8.2 and phpBB 3.3.15 compatibility.
 
 ## Licence
