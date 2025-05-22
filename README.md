@@ -50,7 +50,7 @@ When a user likes or dislikes a post:
 
 ## Credits
 
-Forked and modernized from github repository https://github.com/Steve-C/Member-Reputation from original code by Daniel James (danieltj).
+Forked and modernized from github repository https://github.com/Steve-C/Member-Reputation from original code by Daniel James (https://github.com/danieltj27).
 Updated for PHP 8.2 and phpBB 3.3.15 compatibility.
 
 ## Licence
